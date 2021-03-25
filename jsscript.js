@@ -344,7 +344,6 @@ function loop(){
         }
     
 }
-loop();
 
 const soundElement = document.getElementById("sound");
 
