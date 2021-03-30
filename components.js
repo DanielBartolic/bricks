@@ -7,6 +7,10 @@ BRICK_IMG.src = "slike/brick.png";
 const BROKEN_BRICK_IMG = new Image();
 BROKEN_BRICK_IMG.src = "slike/brokenBrick.png";
 
+
+const STRONG_BRICK_IMG = new Image();
+STRONG_BRICK_IMG.src = "slike/brickStrong.png";
+
 const PADDLE_IMG = new Image();
 PADDLE_IMG.src = "slike/paddle.png";
 
@@ -16,8 +20,11 @@ PADDLE_POWER_IMG.src = "slike/paddlePower.png";
 const POWER_IMG = new Image();
 POWER_IMG.src = "slike/power.jpg";
 
-const POWER_UP_IMG = new Image();
-POWER_UP_IMG.src = "slike/powerUp.png";
+const POWER_UP1_IMG = new Image();
+POWER_UP1_IMG.src = "slike/pearPower.png";
+
+const POWER_UP2_IMG = new Image();
+POWER_UP2_IMG.src = "slike/applePower.png";
 
 const BALL_POWER_IMG = new Image();
 BALL_POWER_IMG.src = "slike/ballPower.png";

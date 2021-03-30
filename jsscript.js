@@ -11,13 +11,16 @@ const PADDLE_MARGIN_BOTTOM = 50;
 const PADDLE_HEIGHT = 20;
 const BALL_RADIUS = 10;
 const POWER_UP_RADIUS = 10;
+const MAX_LEVEL = 3;
 
 let GAME_OVER = false;
+let LEVEL = 1;
 let LIFE = 3;
 let SCORE = 0;
 const SCORE_UNIT = 10;
 let leftArrow = false;
 let rightArrow = false;
+let randomBricks = Math.random();
 
 
 
@@ -43,6 +46,10 @@ function drawPaddle(){
     }
     else if(paddle.powered){
         paddle.width = PADDLE_WIDTH*2;
+        if(paddle.x<0)
+            paddle.x = 0;
+        if(paddle.x + paddle.width > cvs.width)
+            paddle.x = cvs.width - (paddle.width);
         
         ctx.drawImage(PADDLE_POWER_IMG, paddle.x, paddle.y);
     }
@@ -79,9 +86,10 @@ const ball = {
     x : cvs.width/2,
     y : paddle.y - BALL_RADIUS,
     radius : BALL_RADIUS,
-    speed : 4,
+    speed : 3,
     dx : 3 * (Math.random()*2-1),
-    dy : -3
+    dy : -3,
+    powered : false
 }
 
 function drawBall(){
@@ -89,6 +97,15 @@ function drawBall(){
     ctx.beginPath();
 
     ctx.drawImage(BALL_IMG, ball.x - ball.radius,ball.y - ball.radius);
+
+    if(ball.powered){
+        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI*2);
+        ctx.fillStyle = ctx.createPattern(POWER_IMG, 'repeat');
+        ctx.fill();
+        ctx.drawImage(BALL_POWER_IMG, ball.x - ball.radius,ball.y - ball.radius);
+    }
+
+    
     
 
     ctx.closePath();
@@ -103,7 +120,11 @@ function moveBall(){
 
 
 function ballWallCollision(){
-    if(ball.x + ball.radius >= cvs.width || ball.x - ball.radius <= 0){
+    if(ball.x + ball.radius > cvs.width || ball.x - ball.radius < 0 ){
+        if(ball.x + ball.radius > cvs.width)
+        ball.x = cvs.width - ball.radius;
+        if(ball.x - ball.radius < 0)
+            ball.x = ball.radius;
         ball.dx = - ball.dx;
     }
 
@@ -120,6 +141,8 @@ function ballWallCollision(){
 function resetBall(){
     ball.x = paddle.x + PADDLE_WIDTH/2;
     ball.y = paddle.y - BALL_RADIUS;
+    ball.powered = false;
+
 
     
     ball.dx = 3 * (Math.random()*2-1);
@@ -143,7 +166,7 @@ function ballPaddleCollision(){
 //BRICK
 
 const brick = {
-    row : 3,
+    row : 1,
     column : 10,
     width : 55,
     height : 20,
@@ -158,11 +181,16 @@ function createBrick(){
     for(let r = 0; r < brick.row; r++){
         bricks[r] = [];
         for(let c = 0; c < brick.column; c++){
+            let pwr = 1;
+            if(r == 1)
+                pwr = 2;
+            if(r == 2)
+                pwr = 3;
             bricks[r][c] = {
                 x : c * (brick.offSetLeft + brick.width) + brick.offSetLeft,
                 y : r * (brick.offSetLeft + brick.height) + brick.offSetTop + brick.marginTop,
                 status : true,
-                power : 2
+                power : pwr
             }
         }
     }
@@ -176,22 +204,15 @@ function drawBricks(){
             let b = bricks[r][c];
 
             if(b.status){
-                // ctx.fillStyle = brick.fillColor;
-                // ctx.fillRect(b.x, b.y, brick.width, brick.height);
-
-                // ctx.strokeStyle = brick.strokeColor;
-                // ctx.strokeRect(b.x, b.y, brick.width, brick.height);
-
-                if(r != 2){             
-                    b.power = 1;
-                }
-
                 switch (b.power) {
                     case 1:
                         ctx.drawImage(BROKEN_BRICK_IMG, b.x, b.y);
                       break;
                     case 2:
-                        ctx.drawImage(BRICK_IMG, b.x, b.y);
+                        ctx.drawImage(BRICK_IMG, b.x, b.y); 
+                        break;
+                    case 3: 
+                        ctx.drawImage(STRONG_BRICK_IMG, b.x, b.y)
                 }
             }
         }
@@ -210,10 +231,18 @@ function ballBrickCollision(){
                     && ball.y + ball.radius > b.y 
                     && ball.y - ball.radius < b.y + brick.height){
                         BRICK_HIT.play();
-                        ball.dy = - ball.dy;
+                        if(!ball.powered)
+                            ball.dy = - ball.dy;
+
                         switch (b.power) {
                             case 1:
-                                if((Math.random()<=1) && !powerup.falling && !paddle.powered){
+                                if(!powerup.falling && !paddle.powered && !ball.powered){
+                                    
+                                    if(Math.random()<=0.5){
+                                        powerup.type = 1;
+                                    }else{
+                                        powerup.type = 2
+                                    }
                                     
                                     powerup.falling = true;
                                     powerup.x = b.x+20;
@@ -224,7 +253,10 @@ function ballBrickCollision(){
                               break;
                             case 2:
                                 b.power --;
-                                ctx.drawImage(BRICK_IMG, b.x, b.y);
+                                ctx.drawImage(BRICK_IMG, b.x, b.y); break;
+                            case 3:
+                                b.power --;
+                                ctx.drawImage(STRONG_BRICK_IMG, b.x, b.y);
                         }
                     }
             }
@@ -237,17 +269,22 @@ const powerup = {
     y : 0,
     radius : BALL_RADIUS,
     dy : 3,
-    falling : false
+    falling : false,
+    type : 1
 }
 
 function drawPowerUp(){
     if(powerup.falling){
 
         ctx.beginPath();
-        // ctx.arc(powerup.x, powerup.y, powerup.radius, 0, Math.PI*2);
-        // ctx.fillStyle = ctx.createPattern(POWER_IMG, 'repeat');
-        // ctx.fill();
-        ctx.drawImage(POWER_UP_IMG, powerup.x - powerup.radius,powerup.y - powerup.radius);
+        
+        if(powerup.type == 1){
+            ctx.drawImage(POWER_UP1_IMG, powerup.x - powerup.radius,powerup.y - powerup.radius);
+        }
+        
+        if(powerup.type == 2){
+            ctx.drawImage(POWER_UP2_IMG, powerup.x - powerup.radius,powerup.y - powerup.radius);
+        }
 
         ctx.closePath();
 
@@ -266,10 +303,24 @@ function movePowerUp(){
 function powerUpCollision(){
     if(powerup.x < paddle.x + paddle.width && powerup.x > paddle.x &&
         paddle.y < paddle.y + paddle.height && powerup.y > paddle.y){
-            paddle.powered = true;
-            paddle.x = paddle.x - 100;
-            resetPowerUp();
-            setTimeout(()=>{paddle.powered = false;}, 4000);
+
+            if(powerup.type == 1){
+                paddle.powered = true;
+                paddle.x = paddle.x - 50;
+                resetPowerUp();
+                setTimeout(()=>{
+                    paddle.powered = false;
+                }, 10000);
+            }
+            
+            if(powerup.type == 2){
+                ball.powered = true;
+                resetPowerUp();
+                setTimeout(()=>{
+                    ball.powered = false;
+                }, 5000);
+            }
+            
     }
 
     if(powerup.y + powerup.radius > cvs.height){
@@ -286,7 +337,7 @@ function resetPowerUp(){
 
 function showGameStats(text, textX, textY, img, imgX, imgY){
     ctx.fillStyle = "black";
-    ctx.font = '20px Arial';
+    ctx.font = '20px Gloria Hallelujah';
     ctx.fillText(text, textX, textY);
 
 
@@ -296,13 +347,30 @@ function showGameStats(text, textX, textY, img, imgX, imgY){
 
 function gameOver(){
     if(LIFE <= 0){
-        // showYouLose();
-        location.reload();
-        // GAME_OVER = true;
-    }else if(SCORE == 300){
-        // showYouWin();
-        location.reload();
-        // GAME_OVER = true;
+        GOdisplay();
+        GAME_OVER = true;
+    }
+}
+
+function levelUp(){
+    let isLevelDone = true;
+
+    for(let r = 0; r < brick.row; r++){
+        for(let c = 0; c < brick.column; c++){
+            isLevelDone = isLevelDone && !bricks[r][c].status;
+        }
+    }
+
+    if(isLevelDone){
+        if(LEVEL >= 1){
+            WINdisplay();
+            return;
+        }
+        brick.row++;
+        createBrick();
+        ball.speed += 0.5;
+        resetBall();
+        LEVEL++;
     }
 }
 
@@ -328,8 +396,7 @@ function update(){
     ballPaddleCollision();
     ballBrickCollision();
     powerUpCollision();
-    
-    
+    levelUp();
 }
 
 function loop(){
@@ -345,6 +412,8 @@ function loop(){
     
 }
 
+loop();
+
 const soundElement = document.getElementById("sound");
 
 soundElement.addEventListener("click", audioManager);
@@ -356,4 +425,22 @@ function audioManager(){
 
     soundElement.setAttribute("src", SOUNDON_IMG);
     BRICK_HIT.muted = BRICK_HIT.muted ? false : true;
+}
+const restart = document.getElementById("restart");
+const youwin = document.getElementById("youwin");
+
+restart.addEventListener("click", function(){
+    location.reload();
+})
+
+function GOdisplay(){
+
+    restart.style.display = "block";
+
+}
+
+function WINdisplay(){
+    youwin.style.display = "block";
+    restart.style.display = "block";
+
 }
