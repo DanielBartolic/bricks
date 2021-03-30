@@ -30,11 +30,7 @@ const BALL_POWER_IMG = new Image();
 BALL_POWER_IMG.src = "slike/ballPower.png";
 
 
-const LIFE_IMG = new Image();
-LIFE_IMG.src = "slike/life.png";
 
-const SCORE_IMG = new Image();
-SCORE_IMG.src = "slike/score.png";
 
 const BACKGROUND_IMG = new Image();
 BACKGROUND_IMG.src = "slike/background.png";

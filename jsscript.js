@@ -6,6 +6,11 @@ cvs.style.border = "1px solid #000";
 ctx.lineWidth = 2;
 
 //konstante
+const LIFE_IMG = new Image();
+    LIFE_IMG.src = "slike/life.png";
+
+    const SCORE_IMG = new Image();
+    SCORE_IMG.src = "slike/score.png";
 const PADDLE_WIDTH = 100;
 const PADDLE_MARGIN_BOTTOM = 50;
 const PADDLE_HEIGHT = 20;
@@ -383,7 +388,7 @@ function draw(){
     drawBricks();
     drawPowerUp();
     
-
+    
     showGameStats(LIFE, cvs.width - 25, 25 , LIFE_IMG, cvs.width-55, 5);
     showGameStats(SCORE, 35, 25 , SCORE_IMG, 5, 5);
 }
