@@ -35,7 +35,7 @@ const paddle = {
     y : cvs.height - PADDLE_MARGIN_BOTTOM - PADDLE_HEIGHT,
     width : PADDLE_WIDTH,
     height : PADDLE_HEIGHT,
-    dx : 5,
+    dx : 4,
     powered : false
 }
 
@@ -352,6 +352,7 @@ function showGameStats(text, textX, textY, img, imgX, imgY){
 
 function gameOver(){
     if(LIFE <= 0){
+        stopTimer();
         GOdisplay();
         GAME_OVER = true;
     }
@@ -368,12 +369,13 @@ function levelUp(){
 
     if(isLevelDone){
         if(LEVEL >= MAX_LEVEL){
+            stopTimer();
             WINdisplay();
             return;
         }
         brick.row++;
         createBrick();
-        ball.speed += 0.5;
+        ball.speed += 1;
         resetBall();
         LEVEL++;
     }

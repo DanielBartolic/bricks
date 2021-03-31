@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="style.css" />
   </head>
 
-  <body>
+  <body onload="startTimer()">
 
     
     
@@ -14,16 +14,20 @@
 
 
     <h1>Doodle Bricks</h1>
-    <canvas id="bricks" width="780" height="500">
-    </canvas>
+    <div id="stopwatch">
+      00:00:00
+    </div>
+    <canvas id="bricks" width="780" height="500"></canvas>
     
       <div id="restart">Play Again!
         <div id="youwin">YOU WON</div>
       </div>
-
+      
     <h4>Sounds:</h4>
     <img src="slike/sound.png" alt="" id="sound" />
+    
     <script type="text/javascript" src="components.js"></script>
     <script type="text/javascript" src="jsscript.js"></script>
+    <script type="text/javascript" src="timer.js"></script>
   </body>
 </html>

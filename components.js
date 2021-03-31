@@ -29,9 +29,6 @@ POWER_UP2_IMG.src = "slike/applePower.png";
 const BALL_POWER_IMG = new Image();
 BALL_POWER_IMG.src = "slike/ballPower.png";
 
-
-
-
 const BACKGROUND_IMG = new Image();
 BACKGROUND_IMG.src = "slike/background.png";
 
