@@ -367,7 +367,7 @@ function levelUp(){
     }
 
     if(isLevelDone){
-        if(LEVEL >= 1){
+        if(LEVEL >= MAX_LEVEL){
             WINdisplay();
             return;
         }
